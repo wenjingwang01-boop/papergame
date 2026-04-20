@@ -1,0 +1,16 @@
+{
+  "name": "three-game-server",
+  "version": "1.0.0",
+  "description": "三组扑克牌游戏服务器",
+  "main": "server-online.js",
+  "scripts": {
+    "start": "node server-online.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": "16.x"
+  }
+}

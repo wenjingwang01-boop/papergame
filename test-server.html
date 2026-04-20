@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务器测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>服务器测试</h1>
+        <button onclick="testCreateRoom()">测试创建房间</button>
+        <button onclick="testJoinRoom()">测试加入房间</button>
+        <button onclick="testGetRoom()">测试获取房间</button>
+        <button onclick="testStartGame()">测试开始游戏</button>
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        function log(message) {
+            document.getElementById('result').textContent += message + '\n';
+            console.log(message);
+        }
+        
+        function testCreateRoom() {
+            log('\n测试创建房间...');
+            fetch('http://localhost:3001/api/createRoom', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerName: '测试玩家' })
+            })
+            .then(response => {
+                log('状态码: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                log('响应: ' + JSON.stringify(data, null, 2));
+            })
+            .catch(error => {
+                log('错误: ' + error.message);
+            });
+        }
+        
+        function testJoinRoom() {
+            log('\n测试加入房间...');
+            fetch('http://localhost:3001/api/joinRoom', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomId: 'TEST123', playerName: '测试玩家2' })
+            })
+            .then(response => {
+                log('状态码: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                log('响应: ' + JSON.stringify(data, null, 2));
+            })
+            .catch(error => {
+                log('错误: ' + error.message);
+            });
+        }
+        
+        function testGetRoom() {
+            log('\n测试获取房间...');
+            fetch('http://localhost:3001/api/getRoom', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomId: 'TEST123' })
+            })
+            .then(response => {
+                log('状态码: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                log('响应: ' + JSON.stringify(data, null, 2));
+            })
+            .catch(error => {
+                log('错误: ' + error.message);
+            });
+        }
+        
+        function testStartGame() {
+            log('\n测试开始游戏...');
+            fetch('http://localhost:3001/api/startGame', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomId: 'TEST123' })
+            })
+            .then(response => {
+                log('状态码: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                log('响应: ' + JSON.stringify(data, null, 2));
+            })
+            .catch(error => {
+                log('错误: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>

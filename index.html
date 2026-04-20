@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三组扑克牌游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Comic Neue', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            font-weight: 700;
+            color: #ff6b6b;
+            text-shadow: 3px 3px 0px #fecfef, 5px 5px 10px rgba(0,0,0,0.1);
+        }
+
+        .setup-screen {
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 50px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 3px solid #ffd166;
+        }
+
+        .setup-screen h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 2em;
+        }
+
+        .player-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .player-input input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ffd166;
+            border-radius: 15px;
+            font-size: 16px;
+            font-family: 'Comic Neue', sans-serif;
+            background: #fff9e6;
+        }
+
+        .player-list {
+            margin-bottom: 20px;
+        }
+
+        .player-item {
+            background: #fff9e6;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #ffd166;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            padding: 15px 28px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: bold;
+            font-family: 'Comic Neue', sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff5252, #ff7979);
+            transform: scale(1.08);
+            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: #333;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff7a7e, #febfef);
+            transform: scale(1.08);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #84fab0, #8fd3f4);
+            color: #333;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #64fab0, #6fd3f4);
+            transform: scale(1.08);
+            box-shadow: 0 6px 15px rgba(132, 250, 176, 0.4);
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+
+        .game-info {
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 3px solid #ffd166;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .game-info h2 {
+            margin-bottom: 15px;
+            color: #ff6b6b;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .score-card {
+            background: #fff9e6;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #ffd166;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .score-card .player-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+            font-size: 1.1em;
+        }
+
+        .score-card .total-score {
+            font-size: 2.2em;
+            color: #ff9a9e;
+            font-weight: bold;
+        }
+
+        .round-info {
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 3px solid #ffd166;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .round-info h3 {
+            margin-bottom: 10px;
+            color: #ff6b6b;
+            font-size: 1.5em;
+        }
+
+        .round-rules {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .players-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .player-area {
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            padding: 25px;
+            border: 3px solid #ffd166;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .player-area h3 {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #ff6b6b;
+            font-size: 1.3em;
+        }
+
+        .player-area .round-score {
+            background: linear-gradient(135deg, #84fab0, #8fd3f4);
+            color: #333;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(132, 250, 176, 0.4);
+        }
+
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            width: 80px;
+            height: 110px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            position: relative;
+            border: 3px solid #ffd166;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.08);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .card.selected {
+            border: 4px solid #ff6b6b;
+            transform: translateY(-15px) scale(1.15);
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.4);
+        }
+
+        .card.hidden:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        }
+
+        .card.hidden {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #ff6b6b;
+            font-size: 36px;
+            border: 3px solid #ffd166;
+        }
+
+        .card.red {
+            color: #ff6b6b;
+        }
+
+        .card.black {
+            color: #4ecdc4;
+        }
+
+        .card .suit {
+            font-size: 20px;
+            margin-top: 8px;
+        }
+
+        .card.hidden .suit {
+            display: none;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .result-display {
+            background: rgba(255,255,255,0.9);
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 25px;
+            text-align: center;
+            border: 3px solid #ffd166;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .result-display h3 {
+            margin-bottom: 15px;
+            color: #ff6b6b;
+            font-size: 1.8em;
+        }
+
+        .result-display .winner {
+            font-size: 1.8em;
+            color: #ff9a9e;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .result-display .details {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.4;
+        }
+
+        .final-result {
+            background: rgba(255,255,255,0.9);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            margin-top: 30px;
+            border: 3px solid #ffd166;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .final-result h2 {
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+        }
+
+        .final-result .champion {
+            font-size: 2.5em;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .setup-screen {
+                padding: 20px;
+            }
+
+            .card {
+                width: 60px;
+                height: 85px;
+                font-size: 20px;
+            }
+
+            .players-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🃏 三组扑克牌游戏 🃏</h1>
+
+        <div class="setup-screen" id="setupScreen">
+            <h2>游戏设置</h2>
+            <div class="player-input">
+                <input type="text" id="playerName" placeholder="输入玩家名称" maxlength="10">
+                <button class="btn btn-primary" onclick="addPlayer()">添加玩家</button>
+            </div>
+            <div style="text-align: center; margin: 10px 0;">
+                <button class="btn btn-primary" onclick="addAIPlayer()">添加AI对手</button>
+            </div>
+            <div style="margin: 20px 0; padding: 20px; background: #fff9e6; border-radius: 15px; border: 2px solid #ffd166;">
+                <h3 style="color: #ff6b6b; margin-bottom: 15px; text-align: center;">多人对战</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="roomId" placeholder="输入房间ID" style="flex: 1; padding: 12px; border: 2px solid #ffd166; border-radius: 10px; font-family: 'Comic Neue', sans-serif;">
+                    <button class="btn btn-primary" onclick="joinRoom()">加入房间</button>
+                </div>
+                <div style="text-align: center;">
+                    <button class="btn btn-success" onclick="createRoom()">创建房间</button>
+                </div>
+                <div id="roomInfo" style="margin-top: 15px; text-align: center; font-weight: bold; color: #ff6b6b;"></div>
+            </div>
+            <div class="player-list" id="playerList"></div>
+            <div style="text-align: center;">
+                <button class="btn btn-success" onclick="startGame()" id="startBtn" disabled>开始游戏</button>
+            </div>
+        </div>
+
+        <div class="game-screen" id="gameScreen">
+            <div class="game-info">
+                <h2>游戏进度</h2>
+                <div class="scoreboard" id="scoreboard"></div>
+            </div>
+
+            <div class="round-info">
+                <h3 id="roundTitle">第一组：1张牌比大小</h3>
+                <div class="round-rules" id="roundRules"></div>
+            </div>
+
+            <div class="players-area" id="playersArea"></div>
+
+            <div class="game-controls" id="gameControls"></div>
+
+            <div class="result-display" id="resultDisplay" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const SUITS = ['♠', '♥', '♣', '♦'];
+        const SUIT_NAMES = ['黑桃', '红桃', '梅花', '方块'];
+        const VALUES = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const VALUE_POINTS = [14, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+
+        let players = [];
+        let currentRound = 0;
+        let gamePhase = 'setup';
+        let socket = null;
+        let roomId = null;
+        let isHost = false;
+        let pollingInterval = null;
+
+        function Card(suit, value) {
+            this.suit = suit;
+            this.value = value;
+            this.suitIndex = SUITS.indexOf(suit);
+            this.valueIndex = VALUES.indexOf(value);
+            this.points = VALUE_POINTS[this.valueIndex];
+        }
+
+        Card.prototype.toString = function() {
+            return `${SUIT_NAMES[this.suitIndex]}${this.value}`;
+        };
+
+        Card.prototype.isRed = function() {
+            return this.suitIndex === 1 || this.suitIndex === 3;
+        };
+
+        function createDeck() {
+            const deck = [];
+            for (let suit of SUITS) {
+                for (let value of VALUES) {
+                    deck.push(new Card(suit, value));
+                }
+            }
+            return deck;
+        }
+
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        function addPlayer() {
+            const nameInput = document.getElementById('playerName');
+            const name = nameInput.value.trim();
+
+            if (name === '') {
+                alert('请输入玩家名称');
+                return;
+            }
+
+            if (players.some(p => p.name === name)) {
+                alert('该玩家已存在');
+                return;
+            }
+
+            players.push({
+                name: name,
+                isAI: false,
+                isCurrentUser: true,
+                hand: [],
+                round1: [],
+                round2: [],
+                round3: [],
+                scores: [0, 0, 0],
+                totalScore: 0
+            });
+
+            nameInput.value = '';
+            updatePlayerList();
+            document.getElementById('startBtn').disabled = players.length < 2;
+        }
+
+        function addAIPlayer() {
+            const aiNames = ['AI-小明', 'AI-小红', 'AI-小刚', 'AI-小丽', 'AI-小强'];
+            let aiName;
+            let i = 0;
+            
+            do {
+                aiName = aiNames[i % aiNames.length] + (i >= aiNames.length ? (i - aiNames.length + 1) : '');
+                i++;
+            } while (players.some(p => p.name === aiName));
+
+            players.push({
+                name: aiName,
+                isAI: true,
+                isCurrentUser: false,
+                hand: [],
+                round1: [],
+                round2: [],
+                round3: [],
+                scores: [0, 0, 0],
+                totalScore: 0
+            });
+
+            updatePlayerList();
+            document.getElementById('startBtn').disabled = players.length < 2;
+        }
+
+        function removePlayer(index) {
+            players.splice(index, 1);
+            updatePlayerList();
+            document.getElementById('startBtn').disabled = players.length < 2;
+        }
+
+        function updatePlayerList() {
+            const list = document.getElementById('playerList');
+            list.innerHTML = players.map((player, index) => `
+                <div class="player-item">
+                    <span>${player.name}${player.isAI ? ' (AI)' : ''}</span>
+                    <button class="btn btn-danger" onclick="removePlayer(${index})">删除</button>
+                </div>
+            `).join('');
+        }
+
+        function createRoom() {
+            let playerName = document.getElementById('playerName').value.trim();
+            if (!playerName) {
+                playerName = '玩家' + Math.floor(Math.random() * 1000);
+                document.getElementById('playerName').value = playerName;
+            }
+
+            // 生成房间ID
+            roomId = Math.random().toString(36).substring(2, 10).toUpperCase();
+            document.getElementById('roomInfo').textContent = `房间ID: ${roomId}`;
+            isHost = true;
+
+            // 使用HTTP API创建房间
+            fetch('https://three-game-server.onrender.com/api/createRoom', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`房间创建成功！房间ID: ${data.roomId}`);
+                    roomId = data.roomId;
+                    document.getElementById('roomInfo').textContent = `房间ID: ${roomId}`;
+                    
+                    // 添加当前玩家
+                    if (players.length === 0) {
+                        players.push({
+                            name: playerName,
+                            isAI: false,
+                            isCurrentUser: true,
+                            hand: [],
+                            round1: [],
+                            round2: [],
+                            round3: [],
+                            scores: [0, 0, 0],
+                            totalScore: 0
+                        });
+                        updatePlayerList();
+                    }
+                    
+                    // 开始轮询房间状态
+                    startPolling();
+                } else {
+                    alert('创建房间失败: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('创建房间错误:', error);
+                alert('网络连接失败，无法创建房间，请添加AI进行本地游戏');
+                // 重置状态，允许本地游戏
+                isHost = false;
+                roomId = null;
+            });
+        }
+
+        function joinRoom() {
+            const roomIdInput = document.getElementById('roomId').value.trim();
+            let playerName = document.getElementById('playerName').value.trim();
+            
+            if (!roomIdInput) {
+                alert('请输入房间ID');
+                return;
+            }
+            if (!playerName) {
+                playerName = '玩家' + Math.floor(Math.random() * 1000);
+                document.getElementById('playerName').value = playerName;
+            }
+
+            roomId = roomIdInput;
+            document.getElementById('roomInfo').textContent = `房间ID: ${roomId}`;
+
+            // 使用HTTP API加入房间
+            fetch('https://three-game-server.onrender.com/api/joinRoom', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomId, playerName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('加入房间成功！');
+                    
+                    // 添加当前玩家
+                    if (players.length === 0) {
+                        players.push({
+                            name: playerName,
+                            isAI: false,
+                            isCurrentUser: true,
+                            hand: [],
+                            round1: [],
+                            round2: [],
+                            round3: [],
+                            scores: [0, 0, 0],
+                            totalScore: 0
+                        });
+                        updatePlayerList();
+                    }
+                    
+                    // 开始轮询房间状态
+                    startPolling();
+                } else {
+                    alert('加入房间失败: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('加入房间错误:', error);
+                alert('网络连接失败，无法加入房间');
+                // 重置状态，允许本地游戏
+                isHost = false;
+                roomId = null;
+            });
+        }
+
+        function startPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+            
+            pollingInterval = setInterval(() => {
+                if (roomId) {
+                    fetch('https://three-game-server.onrender.com/api/getRoom', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ roomId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.room) {
+                            const roomPlayers = data.room.players;
+                            
+                            // 检查玩家数量变化
+                            if (roomPlayers.length !== players.length) {
+                                players = roomPlayers.map(p => ({
+                                    name: p.name,
+                                    isAI: false,
+                                    isCurrentUser: p.isHost === true && isHost,
+                                    hand: [],
+                                    round1: [],
+                                    round2: [],
+                                    round3: [],
+                                    scores: [0, 0, 0],
+                                    totalScore: 0
+                                }));
+                                updatePlayerList();
+                                document.getElementById('startBtn').disabled = players.length < 2;
+                            }
+                            
+                            // 检查游戏是否开始
+                            if (data.room.status === 'playing' && gamePhase === 'setup') {
+                                players = roomPlayers.map(p => ({
+                                    name: p.name,
+                                    isAI: false,
+                                    isCurrentUser: p.isHost === true && isHost,
+                                    hand: [],
+                                    round1: [],
+                                    round2: [],
+                                    round3: [],
+                                    scores: [0, 0, 0],
+                                    totalScore: 0
+                                }));
+                                startGame();
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('轮询错误:', error);
+                    });
+                }
+            }, 1000); // 每秒轮询一次
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+
+        function dealCards() {
+            const deck = shuffleDeck(createDeck());
+            const cardsPerPlayer = 6;
+
+            for (let i = 0; i < players.length; i++) {
+                players[i].hand = deck.slice(i * cardsPerPlayer, (i + 1) * cardsPerPlayer);
+                players[i].round1 = [];
+                players[i].round2 = [];
+                players[i].round3 = [];
+                players[i].scores = [0, 0, 0];
+                players[i].totalScore = 0;
+            }
+        }
+
+        function startGame() {
+            if (players.length < 2) {
+                alert('至少需要2名玩家才能开始游戏');
+                return;
+            }
+
+            // 检查是否有AI玩家，如果有则使用本地游戏模式
+            const hasAIPlayers = players.some(player => player.isAI);
+            
+            // 检查是否有真实玩家（非AI）
+            const hasRealPlayers = players.some(player => !player.isAI);
+            
+            // 本地游戏模式（优先使用）
+            if (hasAIPlayers) {
+                startLocalGame();
+            } else if (isHost && hasRealPlayers) {
+                // 多人在线游戏模式
+                fetch('https://three-game-server.onrender.com/api/startGame', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomId, players })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        stopPolling();
+                        dealCards();
+                        currentRound = 0;
+                        gamePhase = 'playing';
+
+                        document.getElementById('setupScreen').style.display = 'none';
+                        document.getElementById('gameScreen').classList.add('active');
+
+                        startRound(0);
+                    } else {
+                        alert('开始游戏失败: ' + data.error);
+                        // 失败时尝试本地游戏模式
+                        startLocalGame();
+                    }
+                })
+                .catch(error => {
+                    console.error('开始游戏错误:', error);
+                    // 网络错误时使用本地游戏模式
+                    startLocalGame();
+                });
+            } else if (!isHost && !hasAIPlayers) {
+                alert('只有主机可以开始游戏');
+                return;
+            } else {
+                // 本地游戏模式
+                startLocalGame();
+            }
+        }
+
+        function startLocalGame() {
+            stopPolling();
+            dealCards();
+            currentRound = 0;
+            gamePhase = 'playing';
+
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('gameScreen').classList.add('active');
+
+            startRound(0);
+        }
+
+        function startRound(round) {
+            currentRound = round;
+            updateScoreboard();
+            updateRoundInfo();
+            
+            // AI自动选择卡牌
+            for (let player of players) {
+                if (player.isAI) {
+                    aiMakeSelection(player);
+                }
+            }
+            
+            renderPlayersArea(false);
+            renderGameControls();
+            document.getElementById('resultDisplay').style.display = 'none';
+        }
+
+        function aiMakeSelection(player) {
+            if (currentRound === 0) {
+                // 第一组：选择最大的牌
+                const availableCards = player.hand.filter(card => !player.round1.includes(card));
+                availableCards.sort((a, b) => {
+                    if (b.points !== a.points) return b.points - a.points;
+                    return b.suitIndex - a.suitIndex;
+                });
+                player.round1 = [availableCards[0]];
+            } else if (currentRound === 1) {
+                // 第二组：选择最接近10.5的组合
+                const availableCards = player.hand.filter(card => 
+                    !player.round1.includes(card) && !player.round2.includes(card)
+                );
+                let bestCombination = null;
+                let bestPoints = 0;
+                
+                for (let i = 0; i < availableCards.length; i++) {
+                    for (let j = i + 1; j < availableCards.length; j++) {
+                        const combo = [availableCards[i], availableCards[j]];
+                        const points = calculateRound2Points(combo);
+                        if (points <= 10.5 && points > bestPoints) {
+                            bestPoints = points;
+                            bestCombination = combo;
+                        }
+                    }
+                }
+                
+                if (bestCombination) {
+                    player.round2 = bestCombination;
+                } else {
+                    // 如果所有组合都爆牌，选择点数最小的
+                    let minPoints = 999;
+                    let minCombo = null;
+                    for (let i = 0; i < availableCards.length; i++) {
+                        for (let j = i + 1; j < availableCards.length; j++) {
+                            const combo = [availableCards[i], availableCards[j]];
+                            const points = calculateRound2Points(combo);
+                            if (points < minPoints) {
+                                minPoints = points;
+                                minCombo = combo;
+                            }
+                        }
+                    }
+                    player.round2 = minCombo || [];
+                }
+            }
+        }
+
+        function updateScoreboard() {
+            const scoreboard = document.getElementById('scoreboard');
+            scoreboard.innerHTML = players.map(player => `
+                <div class="score-card">
+                    <div class="player-name">${player.name}</div>
+                    <div class="total-score">${player.totalScore}分</div>
+                </div>
+            `).join('');
+        }
+
+        function updateRoundInfo() {
+            const titles = [
+                '第一组：1张牌比大小',
+                '第二组：十点半',
+                '第三组：炸金花'
+            ];
+
+            const rules = [
+                '每人选择1张牌，牌面最大者获胜。牌面大小：数字优先，数字相同时按花色排序（黑桃＞红桃＞梅花＞方块）。',
+                '每人选择2张牌，计算总点数（1-10按牌面数字，J/Q/K算0.5点）。总点数≤10.5点，点数最大者获胜；超过10.5点则爆牌判负。',
+                '剩余3张牌自动成为第三组，比牌型大小。牌型排序：豹子＞顺金＞金花＞顺子＞对子＞单张。'
+            ];
+
+            document.getElementById('roundTitle').textContent = titles[currentRound];
+            document.getElementById('roundRules').textContent = rules[currentRound];
+        }
+
+        function renderPlayersArea() {
+            const area = document.getElementById('playersArea');
+            area.innerHTML = players.map((player, playerIndex) => `
+                <div class="player-area">
+                    <h3>
+                        ${player.name}
+                        <span class="round-score">${player.scores[currentRound]}分</span>
+                    </h3>
+                    <div class="cards-container" id="cards-${playerIndex}">
+                        ${renderCards(player, playerIndex)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCards(player, playerIndex) {
+            let cards = [];
+            let roundCards = [];
+            let remainingCards = [];
+
+            if (currentRound === 0) {
+                roundCards = player.round1;
+                remainingCards = player.hand.filter(card => !player.round1.includes(card));
+            } else if (currentRound === 1) {
+                roundCards = player.round2;
+                remainingCards = player.hand.filter(card => 
+                    !player.round1.includes(card) && !player.round2.includes(card)
+                );
+            } else {
+                roundCards = player.round3;
+                remainingCards = [];
+            }
+
+            // 检查是否是当前玩家的区域
+            // 简化处理：假设第一个玩家是人类玩家，其他是AI或其他玩家
+            const isCurrentPlayer = playerIndex === 0 || !player.isAI;
+
+            let remainingCardsHtml = '';
+            if (isCurrentPlayer) {
+                remainingCardsHtml = remainingCards.map((card, cardIndex) => `
+                    <div class="card ${card.isRed() ? 'red' : 'black'}" 
+                         onclick="selectCard(${playerIndex}, ${cardIndex})"
+                         data-player="${playerIndex}" 
+                         data-card="${cardIndex}">
+                        ${card.value}
+                        <span class="suit">${card.suit}</span>
+                    </div>
+                `).join('');
+            } else {
+                remainingCardsHtml = remainingCards.map((card, cardIndex) => `
+                    <div class="card hidden" 
+                         data-player="${playerIndex}" 
+                         data-card="${cardIndex}">
+                        🂠
+                    </div>
+                `).join('');
+            }
+
+            let roundCardsHtml = '';
+            if (isCurrentPlayer) {
+                roundCardsHtml = roundCards.map((card, cardIndex) => `
+                    <div class="card ${card.isRed() ? 'red' : 'black'} selected" 
+                         onclick="deselectCard(${playerIndex}, ${cardIndex})">
+                        ${card.value}
+                        <span class="suit">${card.suit}</span>
+                    </div>
+                `).join('');
+            } else {
+                roundCardsHtml = roundCards.map((card, cardIndex) => `
+                    <div class="card hidden selected">
+                        🂠
+                    </div>
+                `).join('');
+            }
+
+            return remainingCardsHtml + roundCardsHtml;
+        }
+
+        function selectCard(playerIndex, cardIndex) {
+            const player = players[playerIndex];
+            let availableCards = [];
+            let roundCards = [];
+
+            if (currentRound === 0) {
+                availableCards = player.hand.filter(card => !player.round1.includes(card));
+                roundCards = player.round1;
+            } else if (currentRound === 1) {
+                availableCards = player.hand.filter(card => 
+                    !player.round1.includes(card) && !player.round2.includes(card)
+                );
+                roundCards = player.round2;
+            }
+
+            const card = availableCards[cardIndex];
+
+            if (currentRound === 0) {
+                if (roundCards.length >= 1) {
+                    alert('第一组只能选择1张牌');
+                    return;
+                }
+                player.round1.push(card);
+            } else if (currentRound === 1) {
+                if (roundCards.length >= 2) {
+                    alert('第二组只能选择2张牌');
+                    return;
+                }
+                player.round2.push(card);
+            }
+
+            renderPlayersArea();
+            updateGameControls();
+        }
+
+        function deselectCard(playerIndex, cardIndex) {
+            const player = players[playerIndex];
+
+            if (currentRound === 0) {
+                player.round1 = [];
+            } else if (currentRound === 1) {
+                player.round2.splice(cardIndex, 1);
+            }
+
+            renderPlayersArea();
+            updateGameControls();
+        }
+
+        function renderGameControls() {
+            const controls = document.getElementById('gameControls');
+            let html = '';
+
+            if (currentRound === 0) {
+                html = `
+                    <button class="btn btn-primary" onclick="confirmRound1()">确认选择</button>
+                `;
+            } else if (currentRound === 1) {
+                html = `
+                    <button class="btn btn-primary" onclick="confirmRound2()">确认选择</button>
+                `;
+            } else {
+                html = `
+                    <button class="btn btn-primary" onclick="playRound3()">开始比牌</button>
+                `;
+            }
+
+            controls.innerHTML = html;
+        }
+
+        function updateGameControls() {
+            renderGameControls();
+        }
+
+        function confirmRound1() {
+            for (let player of players) {
+                if (player.round1.length !== 1) {
+                    alert(`${player.name} 还没有选择1张牌`);
+                    return;
+                }
+            }
+
+            playRound1();
+        }
+
+        function playRound1() {
+            const results = players.map(player => ({
+                player: player,
+                card: player.round1[0],
+                score: calculateCardScore(player.round1[0])
+            }));
+
+            results.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return b.card.suitIndex - a.card.suitIndex;
+            });
+
+            const maxScore = results[0].score;
+            const winners = results.filter(r => r.score === maxScore);
+
+            // 平局时双方都不得分
+            if (winners.length === 1) {
+                for (let result of results) {
+                    if (result.score === maxScore) {
+                        // 基础分1分
+                        let points = 1;
+                        // 如果有黑桃A，加1分
+                        if (result.card.value === 'A' && result.card.suit === '♠') {
+                            points = 2;
+                        }
+                        result.player.scores[0] = points;
+                        result.player.totalScore += points;
+                    }
+                }
+            } else {
+                // 平局，双方都不得分
+                for (let result of results) {
+                    result.player.scores[0] = 0;
+                }
+            }
+
+            showRoundResult(winners, results);
+        }
+
+        function calculateCardScore(card) {
+            return card.points;
+        }
+
+        function showRoundResult(winners, results) {
+            const display = document.getElementById('resultDisplay');
+            const winnerNames = winners.map(w => w.player.name).join('、');
+
+            let details = '';
+            if (currentRound === 0) {
+                details = results.map(r => 
+                    `${r.player.name}: ${r.card.toString()}`
+                ).join('<br>');
+            } else if (currentRound === 1) {
+                details = results.map(r => {
+                    const points = calculateRound2Points(r.player.round2);
+                    return `${r.player.name}: ${r.player.round2.map(c => c.toString()).join(' + ')} = ${points}点`;
+                }).join('<br>');
+            } else if (currentRound === 2) {
+                details = results.map(r => {
+                    const handTypeName = getHandTypeName(r.handType.type);
+                    return `${r.player.name}: ${r.player.round3.map(c => c.toString()).join(' ')} (${handTypeName})`;
+                }).join('<br>');
+            }
+
+            display.innerHTML = `
+                <h3>本轮结果</h3>
+                <div class="winner">🏆 获胜者：${winnerNames}</div>
+                <div class="details">${details}</div>
+            `;
+            display.style.display = 'block';
+
+            // 显示所有玩家的牌面
+            renderPlayersArea(true);
+
+            const controls = document.getElementById('gameControls');
+            controls.innerHTML = `
+                <button class="btn btn-success" onclick="nextRound()">下一组</button>
+            `;
+        }
+
+        function getHandTypeName(type) {
+            const types = ['', '单张', '对子', '顺子', '金花', '顺金', '豹子', '235'];
+            return types[type] || '';
+        }
+
+        function renderPlayersArea(showAllCards = false) {
+            const area = document.getElementById('playersArea');
+            area.innerHTML = players.map((player, playerIndex) => `
+                <div class="player-area">
+                    <h3>
+                        ${player.name}
+                        <span class="round-score">${player.scores[currentRound]}分</span>
+                    </h3>
+                    <div class="cards-container" id="cards-${playerIndex}">
+                        ${renderCards(player, playerIndex, showAllCards)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCards(player, playerIndex, showAllCards = false) {
+            let cards = [];
+            let roundCards = [];
+            let remainingCards = [];
+
+            if (currentRound === 0) {
+                roundCards = player.round1;
+                remainingCards = player.hand.filter(card => !player.round1.includes(card));
+            } else if (currentRound === 1) {
+                roundCards = player.round2;
+                remainingCards = player.hand.filter(card => 
+                    !player.round1.includes(card) && !player.round2.includes(card)
+                );
+            } else {
+                roundCards = player.round3;
+                remainingCards = [];
+            }
+
+            // 检查是否是当前玩家的区域
+            // 每个玩家只能看到自己的牌，其他玩家的牌都隐藏
+            const isCurrentPlayer = player.isCurrentUser;
+            const shouldShowCards = showAllCards || isCurrentPlayer;
+
+            let remainingCardsHtml = '';
+            if (shouldShowCards) {
+                remainingCardsHtml = remainingCards.map((card, cardIndex) => `
+                    <div class="card ${card.isRed() ? 'red' : 'black'}" 
+                         onclick="selectCard(${playerIndex}, ${cardIndex})"
+                         data-player="${playerIndex}" 
+                         data-card="${cardIndex}">
+                        ${card.value}
+                        <span class="suit">${card.suit}</span>
+                    </div>
+                `).join('');
+            } else {
+                remainingCardsHtml = remainingCards.map((card, cardIndex) => `
+                    <div class="card hidden" 
+                         data-player="${playerIndex}" 
+                         data-card="${cardIndex}">
+                        🂠
+                    </div>
+                `).join('');
+            }
+
+            let roundCardsHtml = '';
+            if (shouldShowCards) {
+                roundCardsHtml = roundCards.map((card, cardIndex) => `
+                    <div class="card ${card.isRed() ? 'red' : 'black'} selected" 
+                         onclick="deselectCard(${playerIndex}, ${cardIndex})">
+                        ${card.value}
+                        <span class="suit">${card.suit}</span>
+                    </div>
+                `).join('');
+            } else {
+                roundCardsHtml = roundCards.map((card, cardIndex) => `
+                    <div class="card hidden selected">
+                        🂠
+                    </div>
+                `).join('');
+            }
+
+            return remainingCardsHtml + roundCardsHtml;
+        }
+
+        function nextRound() {
+            if (currentRound < 2) {
+                startRound(currentRound + 1);
+            } else {
+                showFinalResult();
+            }
+        }
+
+        function confirmRound2() {
+            for (let player of players) {
+                if (player.round2.length !== 2) {
+                    alert(`${player.name} 还没有选择2张牌`);
+                    return;
+                }
+            }
+
+            playRound2();
+        }
+
+        function playRound2() {
+            const results = players.map(player => {
+                const points = calculateRound2Points(player.round2);
+                const isBust = points > 10.5;
+                const isTenHalf = points === 10.5;
+                return {
+                    player: player,
+                    cards: player.round2,
+                    points: points,
+                    isBust: isBust,
+                    isTenHalf: isTenHalf
+                };
+            });
+
+            const validResults = results.filter(r => !r.isBust);
+
+            if (validResults.length === 0) {
+                showRoundResult([], results);
+                return;
+            }
+
+            validResults.sort((a, b) => b.points - a.points);
+
+            const maxPoints = validResults[0].points;
+            const winners = validResults.filter(r => r.points === maxPoints);
+
+            // 平局时双方都不得分
+            if (winners.length === 1) {
+                for (let result of results) {
+                    if (!result.isBust && result.points === maxPoints) {
+                        // 基础分2分
+                        let points = 2;
+                        // 如果是十点半，翻倍到4分
+                        if (result.isTenHalf) {
+                            points = 4;
+                        }
+                        result.player.scores[1] = points;
+                        result.player.totalScore += points;
+                    }
+                }
+            } else {
+                // 平局，双方都不得分
+                for (let result of results) {
+                    result.player.scores[1] = 0;
+                }
+            }
+
+            showRoundResult(winners, results);
+        }
+
+        function calculateRound2Points(cards) {
+            let points = 0;
+            for (let card of cards) {
+                if (card.value === 'J' || card.value === 'Q' || card.value === 'K') {
+                    points += 0.5;
+                } else {
+                    points += card.points;
+                }
+            }
+            return points;
+        }
+
+        function playRound3() {
+            for (let player of players) {
+                player.round3 = player.hand.filter(card => 
+                    !player.round1.includes(card) && !player.round2.includes(card)
+                );
+            }
+
+            const results = players.map(player => {
+                const handType = getHandType(player.round3);
+                return {
+                    player: player,
+                    cards: player.round3,
+                    handType: handType
+                };
+            });
+
+            results.sort((a, b) => compareHandTypes(a.handType, b.handType));
+
+            const maxType = results[0].handType;
+            const winners = results.filter(r => compareHandTypes(r.handType, maxType) === 0);
+
+            // 平局时双方都不得分
+            if (winners.length === 1) {
+                for (let result of results) {
+                    if (compareHandTypes(result.handType, maxType) === 0) {
+                        // 基础分3分
+                        let points = 3;
+                        // 如果是豹子，翻倍到6分
+                        if (result.handType.type === 6) {
+                            points = 6;
+                        }
+                        result.player.scores[2] = points;
+                        result.player.totalScore += points;
+                    }
+                }
+            } else {
+                // 平局，双方都不得分
+                for (let result of results) {
+                    result.player.scores[2] = 0;
+                }
+            }
+
+            showRoundResult(winners, results);
+        }
+
+        function getHandType(cards) {
+            const values = cards.map(c => c.valueIndex).sort((a, b) => a - b);
+            const suits = cards.map(c => c.suitIndex);
+            const isFlush = suits[0] === suits[1] && suits[1] === suits[2];
+            const isStraight = (values[1] - values[0] === 1 && values[2] - values[1] === 1) ||
+                             (values[0] === 0 && values[1] === 1 && values[2] === 12);
+
+            const isTriple = values[0] === values[1] && values[1] === values[2];
+            const isPair = values[0] === values[1] || values[1] === values[2] || values[0] === values[2];
+            
+            // 检查是否是235
+            const is235 = values[0] === 1 && values[1] === 2 && values[2] === 4; // 2、3、5对应的valueIndex
+
+            let type, rank, suit;
+
+            if (is235) {
+                type = 7; // 235特殊类型，用于比较时压制豹子
+                rank = 0;
+                suit = 0;
+            } else if (isTriple) {
+                type = 6;
+                rank = values[0];
+                suit = suits[0];
+            } else if (isStraight && isFlush) {
+                type = 5;
+                rank = values[2];
+                suit = suits[0];
+            } else if (isFlush) {
+                type = 4;
+                rank = values[2];
+                suit = suits[0];
+            } else if (isStraight) {
+                type = 3;
+                rank = values[2];
+                suit = 0;
+            } else if (isPair) {
+                type = 2;
+                if (values[0] === values[1]) {
+                    rank = values[0];
+                    suit = suits[0];
+                } else if (values[1] === values[2]) {
+                    rank = values[1];
+                    suit = suits[1];
+                } else {
+                    rank = values[0];
+                    suit = suits[0];
+                }
+            } else {
+                type = 1;
+                rank = values[2];
+                suit = suits[2];
+            }
+
+            return { type, rank, suit, cards, is235: is235 };
+        }
+
+        function compareHandTypes(a, b) {
+            // 235特殊规则：只有在对方是豹子时才压制
+            if (a.is235 && b.type === 6) return 1; // 235 > 豹子
+            if (b.is235 && a.type === 6) return -1; // 豹子 < 235
+            if (a.is235 && b.is235) return 0; // 235 vs 235 平局
+            if (a.is235) return -1; // 235 vs 非豹子，235最小
+            if (b.is235) return 1; // 非豹子 vs 235，235最小
+            
+            if (a.type !== b.type) return b.type - a.type;
+            if (a.rank !== b.rank) return b.rank - a.rank;
+            if (a.type === 1 || a.type === 4) {
+                const aSecond = a.cards[1].valueIndex;
+                const bSecond = b.cards[1].valueIndex;
+                if (aSecond !== bSecond) return bSecond - aSecond;
+            }
+            return b.suit - a.suit;
+        }
+
+        function showFinalResult() {
+            const display = document.getElementById('resultDisplay');
+
+            const sortedPlayers = [...players].sort((a, b) => b.totalScore - a.totalScore);
+            const maxScore = sortedPlayers[0].totalScore;
+            const champions = sortedPlayers.filter(p => p.totalScore === maxScore);
+
+            let championHtml = '';
+            if (champions.length === 1) {
+                championHtml = `
+                    <div class="champion">👑 ${champions[0].name} 👑</div>
+                    <div>总分：${champions[0].totalScore}分</div>
+                `;
+            } else {
+                championHtml = `
+                    <div class="champion">👑 ${champions.map(c => c.name).join('、')} 👑</div>
+                    <div>总分：${champions[0].totalScore}分（并列）</div>
+                `;
+            }
+
+            const scoreDetails = sortedPlayers.map(player => `
+                <div style="margin: 10px 0;">
+                    <strong>${player.name}</strong>: ${player.totalScore}分 
+                    (第一组: ${player.scores[0]}分, 第二组: ${player.scores[1]}分, 第三组: ${player.scores[2]}分)
+                </div>
+            `).join('');
+
+            display.innerHTML = `
+                <div class="final-result">
+                    <h2>🎉 游戏结束 🎉</h2>
+                    ${championHtml}
+                    <div style="margin-top: 20px;">
+                        <h3>详细得分</h3>
+                        ${scoreDetails}
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="resetGame()">重新开始</button>
+                </div>
+            `;
+            display.style.display = 'block';
+
+            document.getElementById('gameControls').innerHTML = '';
+        }
+
+        function resetGame() {
+            players = [];
+            currentRound = 0;
+            gamePhase = 'setup';
+
+            document.getElementById('setupScreen').style.display = 'block';
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('playerList').innerHTML = '';
+            document.getElementById('resultDisplay').style.display = 'none';
+            document.getElementById('startBtn').disabled = true;
+        }
+
+        document.getElementById('playerName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+    </script>
+</body>
+</html>
